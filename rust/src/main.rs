@@ -1,6 +1,8 @@
 use std::fs::File;
 use std::io::Write;
 
+mod utils;
+
 fn main() {
     // image infos
     let wid: u8 = 255;
