@@ -1,7 +1,10 @@
 use std::fs::File;
 use std::io::Write;
 
-mod utils;
+use color::Color;
+
+mod color;
+mod vec;
 
 fn main() {
     // image infos
@@ -18,16 +21,13 @@ fn main() {
     for j in 0..hei {
         println!("Progress: {} ", hei - j);
         for i in 0..wid {
-            let r = (i as f32) / (wid as f32 - 1.0);
-            let g = (j as f32) / (hei as f32 - 1.0);
-            let b: f32 = 0.0;
-
-            let ir = (255.999 * r) as u64;
-            let ig = (255.999 * g) as u64;
-            let ib = (255.999 * b) as u64;
+            let r = (i as f64) / (wid as f64 - 1.0);
+            let g = (j as f64) / (hei as f64 - 1.0);
+            let b: f64 = 1.0;
+            let c = Color::new(r, g, b);
 
             // println!("{ir} {ig} {ib}");
-            let _ = writeln!(file, "{ir} {ig} {ib}");
+            let _ = writeln!(file, "{}", c);
         }
     }
     println!("Done")
