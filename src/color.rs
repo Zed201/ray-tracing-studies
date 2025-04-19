@@ -1,6 +1,8 @@
 use core::fmt;
 use std::fmt::Formatter;
 
+use image::Rgb;
+
 use crate::vec;
 
 #[derive(Clone, Copy)]
@@ -23,5 +25,25 @@ impl fmt::Display for Color {
         let bbyte = (self.rgb[2] * 255.999) as u8;
 
         writeln!(f, "{} {} {}", rbyte, gbyte, bbyte)
+    }
+}
+
+impl From<Rgb<u8>> for Color {
+    fn from(value: Rgb<u8>) -> Self {
+        Self::new(
+            value.0[0] as f64 / 255.999,
+            value.0[1] as f64 / 255.999,
+            value.0[2] as f64 / 255.999,
+        )
+    }
+}
+
+impl From<Color> for Rgb<u8> {
+    fn from(value: Color) -> Self {
+        Self([
+            (value.rgb[0] * 255.999) as u8,
+            (value.rgb[1] * 255.999) as u8,
+            (value.rgb[2] * 255.999) as u8,
+        ])
     }
 }
