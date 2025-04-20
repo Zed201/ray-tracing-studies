@@ -1,5 +1,5 @@
 use core::fmt;
-use std::fmt::Formatter;
+use std::{fmt::Formatter, ops::Add};
 
 use image::Rgb;
 
@@ -15,6 +15,10 @@ impl Color {
         Color {
             rgb: vec::Vec3::new(vec::VecTypes::Color, r, g, b),
         }
+    }
+
+    pub fn mul(&self, m: f64) -> Self {
+        Color::new(self.rgb[0] * m, self.rgb[1] * m, self.rgb[2] * m)
     }
 }
 
@@ -45,5 +49,16 @@ impl From<Color> for Rgb<u8> {
             (value.rgb[1] * 255.999) as u8,
             (value.rgb[2] * 255.999) as u8,
         ])
+    }
+}
+
+impl Add for Color {
+    type Output = Color;
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::new(
+            self.rgb[0] + rhs.rgb[0],
+            self.rgb[1] + rhs.rgb[1],
+            self.rgb[2] + rhs.rgb[2],
+        )
     }
 }

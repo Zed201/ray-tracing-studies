@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Index, IndexMut, Mul, MulAssign};
+use std::ops::{Add, AddAssign, Index, IndexMut, Mul, MulAssign, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VecTypes {
@@ -102,6 +102,21 @@ impl AddAssign for Vec3 {
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;
+    }
+}
+
+impl Sub for Vec3 {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        if self.typ != rhs.typ {
+            panic!("Error add diferents VecTypes");
+        }
+        Vec3 {
+            typ: self.typ,
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
     }
 }
 
