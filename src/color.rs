@@ -3,7 +3,10 @@ use std::{fmt::Formatter, ops::Add};
 
 use image::Rgb;
 
-use crate::vec::{self, Vec3};
+use crate::{
+    utils::interval,
+    vec::{self, Vec3},
+};
 
 #[derive(Clone, Copy)]
 pub struct Color {
@@ -44,10 +47,12 @@ impl From<Rgb<u8>> for Color {
 
 impl From<Color> for Rgb<u8> {
     fn from(value: Color) -> Self {
+        // serve to limit the colors values to [0.0, 0.999]
+        let inten = interval::new(0.0, 0.999);
         Self([
-            (value.rgb[0] * 255.999) as u8,
-            (value.rgb[1] * 255.999) as u8,
-            (value.rgb[2] * 255.999) as u8,
+            (inten.clamp(value.rgb[0]) * 256.0) as u8,
+            (inten.clamp(value.rgb[1]) * 256.0) as u8,
+            (inten.clamp(value.rgb[2]) * 256.0) as u8,
         ])
     }
 }
