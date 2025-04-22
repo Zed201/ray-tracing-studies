@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Index, IndexMut, Mul, MulAssign, Sub};
+use std::ops::{Add, AddAssign, Index, IndexMut, Mul, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VecTypes {

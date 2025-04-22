@@ -5,12 +5,11 @@ mod color;
 mod ray;
 mod vec;
 
-use color::Color;
 use vec::*;
 
 fn main() {
     // image infos, aspect is 16:9
-    let wid: u32 = 1920;
+    let wid: u32 = 400;
     let hei: u32 = wid * 9 / 16;
 
     let mut buffer: RgbImage = ImageBuffer::new(wid, hei);
