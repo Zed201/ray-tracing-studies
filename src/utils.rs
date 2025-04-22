@@ -1,5 +1,7 @@
 use rand::prelude::*;
 
+use crate::vec::{Vec3, VecTypes};
+
 pub const PI: f64 = 3.141592;
 pub const INF: f64 = f64::INFINITY;
 
@@ -52,4 +54,14 @@ impl Default for interval {
             max: INF,
         }
     }
+}
+
+// return a random vector in the square (-0.5,-0.5) -> (0.5, 0.5)
+pub fn sample_square() -> Vec3 {
+    Vec3::new(
+        VecTypes::Coordinates,
+        randon_f64() - 0.5,
+        randon_f64() - 0.5,
+        0.0,
+    )
 }

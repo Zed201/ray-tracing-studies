@@ -22,29 +22,29 @@ impl Ray {
         return self.origin + self.direction.mul(t);
     }
 
-    pub fn color(&self, world: &hittable_list) -> Color {
-        // if self.hit_sphere(Vec3::new(VecTypes::Coordinates, 0.0, 0.0, 5.0), 2.1) {
-        //     return Color::new(1.0, 0.0, 0.0);
-        // }
-        // let t1 = self.hit_sphere(Vec3::new(VecTypes::Coordinates, 0.0, 0.0, -2.0), 1.1);
-        //
-        // if t1 > 0.0 {
-        //     // get the normal vector where the ray hit the sphere, basicallu the r vector, the
-        //     // (0,0,-1) is because the camera point
-        //     let normal = self.at(t1).unit_vec();
-        //     return Color::new(normal[0] + 1.0, normal[1] + 1.0, normal[2] + 1.0).mul(0.5);
-        // }
-        let mut h = hit_record::default();
-        if world.hit(&self, INF, 0.0, &mut h) {
-            return Color::from(
-                (h.normal + Vec3::new(VecTypes::Coordinates, 1.0, 1.0, 1.0)).mul(0.5),
-            );
-        }
-        // background
-        let unit = self.direction.unit_vec();
-        let a = 0.5 * (unit[1] + 1.0);
-        return Color::new(1.0, 1.0, 1.0).mul(1.0 - a) + Color::new(0.5, 0.7, 1.0).mul(a);
-    }
+    // pub fn color(&self, world: &hittable_list) -> Color {
+    //     // if self.hit_sphere(Vec3::new(VecTypes::Coordinates, 0.0, 0.0, 5.0), 2.1) {
+    //     //     return Color::new(1.0, 0.0, 0.0);
+    //     // }
+    //     // let t1 = self.hit_sphere(Vec3::new(VecTypes::Coordinates, 0.0, 0.0, -2.0), 1.1);
+    //     //
+    //     // if t1 > 0.0 {
+    //     //     // get the normal vector where the ray hit the sphere, basicallu the r vector, the
+    //     //     // (0,0,-1) is because the camera point
+    //     //     let normal = self.at(t1).unit_vec();
+    //     //     return Color::new(normal[0] + 1.0, normal[1] + 1.0, normal[2] + 1.0).mul(0.5);
+    //     // }
+    //     let mut h = hit_record::default();
+    //     if world.hit(&self, INF, 0.0, &mut h) {
+    //         return Color::from(
+    //             (h.normal + Vec3::new(VecTypes::Coordinates, 1.0, 1.0, 1.0)).mul(0.5),
+    //         );
+    //     }
+    //     // background
+    //     let unit = self.direction.unit_vec();
+    //     let a = 0.5 * (unit[1] + 1.0);
+    //     return Color::new(1.0, 1.0, 1.0).mul(1.0 - a) + Color::new(0.5, 0.7, 1.0).mul(a);
+    // }
     // basically position a sphere in the image,
     // solve a 2 order equation envolve the ray and the sphere center,
     // if has 1 root theres in the border, if has 2 roots
@@ -116,10 +116,10 @@ impl hittable for hittable_list {
 
 #[derive(Default, Clone, Copy)]
 pub struct hit_record {
-    point: Vec3,
-    normal: Vec3,
-    t: f64,
-    front_face: bool,
+    pub point: Vec3,
+    pub normal: Vec3,
+    pub t: f64,
+    pub front_face: bool,
 }
 
 // the normal vector is point to outside/outward

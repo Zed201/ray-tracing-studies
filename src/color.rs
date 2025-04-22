@@ -1,5 +1,8 @@
 use core::fmt;
-use std::{fmt::Formatter, ops::Add};
+use std::{
+    fmt::Formatter,
+    ops::{Add, AddAssign},
+};
 
 use image::Rgb;
 
@@ -71,5 +74,12 @@ impl Add for Color {
             self.rgb[1] + rhs.rgb[1],
             self.rgb[2] + rhs.rgb[2],
         )
+    }
+}
+impl AddAssign for Color {
+    fn add_assign(&mut self, rhs: Self) {
+        self.rgb[0] += rhs.rgb[0];
+        self.rgb[1] += rhs.rgb[1];
+        self.rgb[2] += rhs.rgb[2];
     }
 }

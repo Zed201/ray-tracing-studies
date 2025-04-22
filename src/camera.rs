@@ -1,7 +1,9 @@
 use image::{ImageBuffer, Rgb, RgbImage};
 
 use crate::{
-    ray::{Ray, hittable_list},
+    color::Color,
+    ray::{Ray, hit_record, hittable, hittable_list},
+    utils::{self, INF, sample_square},
     vec::{Vec3, VecTypes},
 };
 
@@ -13,26 +15,69 @@ pub struct Camera {
     pub image_wid: u32,
     pub buffer: RgbImage,
     pub image_name: String,
+    pub samples_per_pixel: u8,
 
     image_hei: u32,
     center: Vec3,
     pixel00_loc: Vec3,
     delta_x: Vec3,
     delta_y: Vec3,
+    pixel_samples_scale: f64,
 }
 
 impl Camera {
+    // based in the objects get the color of pixel pointed from the ray
+    fn ray_color(r: &Ray, world: &hittable_list) -> Color {
+        let mut h = hit_record::default();
+        if world.hit(&r, INF, 0.0, &mut h) {
+            return Color::from(
+                (h.normal + Vec3::new(VecTypes::Coordinates, 1.0, 1.0, 1.0)).mul(0.5),
+            );
+        }
+        // background
+        let unit = r.direction.unit_vec();
+        let a = 0.5 * (unit[1] + 1.0);
+        return Color::new(1.0, 1.0, 1.0).mul(1.0 - a) + Color::new(0.5, 0.7, 1.0).mul(a);
+    }
+
+    // will get a rondom ray from camera to arround the i, j pixel
+    fn get_ray(&self, i: u32, j: u32) -> Ray {
+        let offset = sample_square();
+        // get a offset vector in a square with diagonal size of 1.0
+
+        // get a random pixel arround the (i, j_)
+        let pixel_sample = self.pixel00_loc
+            + self.delta_x.mul(i as f64 * offset[0])
+            + self.delta_y.mul(j as f64 * offset[1]);
+
+        // same used, get a ray from camera to the pixel
+        let ray_dir = pixel_sample - self.center;
+        Ray::new(self.center, ray_dir)
+    }
+
     pub fn render(&mut self, world: &hittable_list) -> Result<(), image::ImageError> {
         self.inititalize();
-        for (x, y, pixel) in self.buffer.enumerate_pixels_mut() {
+        let pxs = self.buffer.enumerate_pixels_mut().collect::<Vec<_>>();
+        // resolve with get the pixel beffore the get ray, or passing the args to ray
+        for (x, y, pixel) in pxs {
             // basically will calc the ray from the camera to the especific point
-            let pixel_center =
-                self.pixel00_loc + self.delta_x.mul(x as f64) + self.delta_y.mul(y as f64);
-            let ray_dir = pixel_center - self.center;
-            let r = Ray::new(self.center, ray_dir.unit_vec());
+            // let pixel_center =
+            //     self.pixel00_loc + self.delta_x.mul(x as f64) + self.delta_y.mul(y as f64);
+            // let ray_dir = pixel_center - self.center;
+            // let r = Ray::new(self.center, ray_dir.unit_vec());
+            //
+            // let c = Self::ray_color(&r, &world);
+            // *pixel = Rgb::from(c);
 
-            let c = r.color(&world);
-            *pixel = Rgb::from(c);
+            // the same thing but wit antialiasing(pick some random pixel arround to colorize the
+            // center pixe)
+            let mut c = Color::new(0.0, 0.0, 0.0);
+            for sample in 0..self.samples_per_pixel {
+                let r = self.get_ray(x, y);
+                c += Self::ray_color(&r, world);
+            }
+            // make a mediam from he valeu of color
+            *pixel = Rgb::from(c.mul(self.pixel_samples_scale));
         }
         self.buffer.save(self.image_name.as_str())
     }
@@ -67,6 +112,8 @@ impl Camera {
         f.aspect_ratio = aspect;
         f.image_wid = img_wid;
         f.image_name = String::from(img_name);
+        f.samples_per_pixel = 100;
+        f.pixel_samples_scale = 1.0 / f.samples_per_pixel as f64;
         return f;
     }
 }
