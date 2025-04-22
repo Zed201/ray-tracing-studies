@@ -13,7 +13,6 @@ use crate::{
 pub struct Camera {
     pub aspect_ratio: f64,
     pub image_wid: u32,
-    pub buffer: RgbImage,
     pub image_name: String,
     pub samples_per_pixel: u8,
 
@@ -41,8 +40,13 @@ impl Camera {
     }
 
     // will get a rondom ray from camera to arround the i, j pixel
-    fn get_ray(&self, i: u32, j: u32) -> Ray {
-        let offset = sample_square();
+    fn get_ray(&self, i: u32, j: u32, random_near: bool) -> Ray {
+        let offset = if random_near {
+            sample_square()
+        } else {
+            // for test
+            Vec3::new(VecTypes::Coordinates, 1.0, 1.0, 0.0)
+        };
         // get a offset vector in a square with diagonal size of 1.0
 
         // get a random pixel arround the (i, j_)
@@ -57,29 +61,30 @@ impl Camera {
 
     pub fn render(&mut self, world: &hittable_list) -> Result<(), image::ImageError> {
         self.inititalize();
-        let pxs = self.buffer.enumerate_pixels_mut().collect::<Vec<_>>();
+        let mut buffer: RgbImage = ImageBuffer::new(self.image_wid, self.image_hei);
         // resolve with get the pixel beffore the get ray, or passing the args to ray
-        for (x, y, pixel) in pxs {
+        for (x, y, pixel) in buffer.enumerate_pixels_mut() {
             // basically will calc the ray from the camera to the especific point
             // let pixel_center =
             //     self.pixel00_loc + self.delta_x.mul(x as f64) + self.delta_y.mul(y as f64);
             // let ray_dir = pixel_center - self.center;
             // let r = Ray::new(self.center, ray_dir.unit_vec());
-            //
-            // let c = Self::ray_color(&r, &world);
-            // *pixel = Rgb::from(c);
+            let r = self.get_ray(x, y, true);
 
-            // the same thing but wit antialiasing(pick some random pixel arround to colorize the
-            // center pixe)
-            let mut c = Color::new(0.0, 0.0, 0.0);
-            for sample in 0..self.samples_per_pixel {
-                let r = self.get_ray(x, y);
-                c += Self::ray_color(&r, world);
-            }
-            // make a mediam from he valeu of color
-            *pixel = Rgb::from(c.mul(self.pixel_samples_scale));
+            let c = Self::ray_color(&r, &world);
+            *pixel = Rgb::from(c);
         }
-        self.buffer.save(self.image_name.as_str())
+        // the same thing but wit antialiasing(pick some random pixel arround to colorize the
+        // center pixe)
+        //     let mut c = Color::new(0.0, 0.0, 0.0);
+        //     for sample in 0..self.samples_per_pixel {
+        //         let r = self.get_ray(x, y);
+        //         c += Self::ray_color(&r, world);
+        //     }
+        //     // make a mediam from he valeu of color
+        //     *pixel = Rgb::from(c.mul(self.pixel_samples_scale));
+        // }
+        buffer.save(self.image_name.as_str())
     }
 
     fn inititalize(&mut self) {
@@ -103,8 +108,6 @@ impl Camera {
             - view_y.div(2.0);
 
         self.pixel00_loc = view_upper_left + (self.delta_y + self.delta_x).mul(0.5);
-
-        self.buffer = ImageBuffer::new(self.image_wid, self.image_hei);
     }
 
     pub fn new(aspect: f64, img_wid: u32, img_name: &str) -> Self {
