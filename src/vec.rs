@@ -12,7 +12,7 @@ impl Default for VecTypes {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Vec3 {
     pub typ: VecTypes,
     x: f64,

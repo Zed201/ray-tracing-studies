@@ -3,7 +3,7 @@ use std::{fmt::Formatter, ops::Add};
 
 use image::Rgb;
 
-use crate::vec;
+use crate::vec::{self, Vec3};
 
 #[derive(Clone, Copy)]
 pub struct Color {
@@ -49,6 +49,12 @@ impl From<Color> for Rgb<u8> {
             (value.rgb[1] * 255.999) as u8,
             (value.rgb[2] * 255.999) as u8,
         ])
+    }
+}
+
+impl From<Vec3> for Color {
+    fn from(value: Vec3) -> Self {
+        Self::new(value[0], value[1], value[2])
     }
 }
 

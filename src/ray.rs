@@ -1,9 +1,10 @@
 use crate::{
     color::Color,
+    utils::INF,
     vec::{self, Vec3, VecTypes},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Ray {
     // the central idea is represent
     // P(t) = A + tB, where A is the origin and B is the direction
@@ -21,7 +22,7 @@ impl Ray {
         return self.origin + self.direction.mul(t);
     }
 
-    pub fn color(&self) -> Color {
+    pub fn color(&self, world: &hittable_list) -> Color {
         // if self.hit_sphere(Vec3::new(VecTypes::Coordinates, 0.0, 0.0, 5.0), 2.1) {
         //     return Color::new(1.0, 0.0, 0.0);
         // }
@@ -33,7 +34,13 @@ impl Ray {
         //     let normal = self.at(t1).unit_vec();
         //     return Color::new(normal[0] + 1.0, normal[1] + 1.0, normal[2] + 1.0).mul(0.5);
         // }
-        //
+        let mut h = hit_record::default();
+        if world.hit(&self, INF, 0.0, &mut h) {
+            return Color::from(
+                (h.normal + Vec3::new(VecTypes::Coordinates, 1.0, 1.0, 1.0)).mul(0.5),
+            );
+        }
+        // background
         let unit = self.direction.unit_vec();
         let a = 0.5 * (unit[1] + 1.0);
         return Color::new(1.0, 1.0, 1.0).mul(1.0 - a) + Color::new(0.5, 0.7, 1.0).mul(a);
@@ -66,13 +73,49 @@ impl Ray {
 }
 
 // hittable objects
-trait hittable {
-    fn hit(&self, r: Ray, r_max: f64, r_min: f64, rec: &mut hit_record) -> bool;
+pub trait hittable {
+    fn hit(&self, r: &Ray, r_max: f64, r_min: f64, rec: &mut hit_record) -> bool;
     // the idea is check if the t is t_min < t < t_max and save this in hit_record
     // there best ways to do that but i will upgrade later
 }
 
-struct hit_record {
+pub struct hittable_list {
+    objs: Vec<Box<dyn hittable>>, // vec de objetos que tem a trait hittable
+}
+impl hittable_list {
+    pub fn new() -> Self {
+        hittable_list { objs: Vec::new() }
+    }
+    pub fn add(&mut self, h: Box<dyn hittable>) {
+        self.objs.push(h);
+    }
+
+    pub fn clear(&mut self) {
+        self.objs.clear();
+    }
+}
+
+impl hittable for hittable_list {
+    fn hit(&self, r: &Ray, r_max: f64, r_min: f64, rec: &mut hit_record) -> bool {
+        let mut hit_any = false;
+        let mut closest_so_far = r_max;
+        let mut tmp_record = hit_record::default();
+
+        for i in &self.objs {
+            // find the some hit, update the r_max finding the the clesest
+            if i.hit(r, closest_so_far, r_min, &mut tmp_record) {
+                hit_any = true;
+                closest_so_far = tmp_record.t;
+                *rec = tmp_record.clone();
+            }
+        }
+
+        return hit_any;
+    }
+}
+
+#[derive(Default, Clone, Copy)]
+pub struct hit_record {
     point: Vec3,
     normal: Vec3,
     t: f64,
@@ -83,7 +126,7 @@ struct hit_record {
 // if is same direction of ray the ray is inside, cos is upper 0
 // if is oposite of ray the ray is outside, cos is under 0
 impl hit_record {
-    fn set_face_normal(&mut self, r: &Ray, outward_normal: Vec3) {
+    pub fn set_face_normal(&mut self, r: &Ray, outward_normal: Vec3) {
         // will calc the face where some ray hit the object
         // outward_normal have to be in unit length
         self.front_face = r.direction.dot(&outward_normal) < 0.0;
@@ -97,7 +140,7 @@ impl hit_record {
     }
 }
 
-struct sphere {
+pub struct sphere {
     center: Vec3,
     radius: f64,
 }
@@ -112,7 +155,7 @@ impl sphere {
 }
 
 impl hittable for sphere {
-    fn hit(&self, r: Ray, r_max: f64, r_min: f64, rec: &mut hit_record) -> bool {
+    fn hit(&self, r: &Ray, r_max: f64, r_min: f64, rec: &mut hit_record) -> bool {
         let oc = self.center - r.origin;
         let a = r.direction.vec_length().powi(2);
         let h = r.direction.dot(&oc);
@@ -127,6 +170,7 @@ impl hittable for sphere {
 
         // checks wich root is in the interval [r_min, r_max]
         // the hit only will "counts" if it is in this interval, is like a "draw distance"
+        // but add other objects make the limit vision with objects in front
         let mut root = (h - sq) / a;
         if root <= r_min || r_max <= root {
             root = (h + sq) / a;

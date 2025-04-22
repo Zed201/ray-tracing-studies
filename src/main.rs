@@ -3,8 +3,10 @@ use pbr::ProgressBar;
 
 mod color;
 mod ray;
+mod utils;
 mod vec;
 
+use ray::{hittable_list, sphere};
 use vec::*;
 
 fn main() {
@@ -35,6 +37,19 @@ fn main() {
         - view_y.div(2.0);
 
     let pixel00_loc = view_upper_left + (delta_y + delta_x).mul(0.5);
+
+    // Objects
+    let mut world = hittable_list::new();
+
+    world.add(Box::new(sphere::new(
+        Vec3::new(VecTypes::Coordinates, 0.0, -100.5, -1.0),
+        100.0,
+    )));
+    world.add(Box::new(sphere::new(
+        Vec3::new(VecTypes::Coordinates, 0.0, 0.0, -1.0),
+        0.5,
+    )));
+
     //Render in png
     let mut pb = ProgressBar::new((hei * wid) as u64);
     pb.format("=>");
@@ -45,7 +60,7 @@ fn main() {
         let ray_dir = pixel_center - camera_point;
         let r = ray::Ray::new(camera_point, ray_dir.unit_vec());
 
-        let c = r.color();
+        let c = r.color(&world);
         *pixel = Rgb::from(c);
 
         pb.inc();
