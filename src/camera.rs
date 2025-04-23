@@ -42,17 +42,17 @@ impl Camera {
     // will get a rondom ray from camera to arround the i, j pixel
     fn get_ray(&self, i: u32, j: u32, random_near: bool) -> Ray {
         let offset = if random_near {
-            sample_square()
+            sample_square() // get a random vec offset
         } else {
             // for test
-            Vec3::new(VecTypes::Coordinates, 1.0, 1.0, 0.0)
+            Vec3::new(VecTypes::Coordinates, 0.0, 0.0, 0.0)
         };
         // get a offset vector in a square with diagonal size of 1.0
 
         // get a random pixel arround the (i, j_)
         let pixel_sample = self.pixel00_loc
-            + self.delta_x.mul(i as f64 * offset[0])
-            + self.delta_y.mul(j as f64 * offset[1]);
+            + self.delta_x.mul(i as f64 + offset[0])
+            + self.delta_y.mul(j as f64 + offset[1]);
 
         // same used, get a ray from camera to the pixel
         let ray_dir = pixel_sample - self.center;
@@ -64,26 +64,14 @@ impl Camera {
         let mut buffer: RgbImage = ImageBuffer::new(self.image_wid, self.image_hei);
         // resolve with get the pixel beffore the get ray, or passing the args to ray
         for (x, y, pixel) in buffer.enumerate_pixels_mut() {
-            // basically will calc the ray from the camera to the especific point
-            // let pixel_center =
-            //     self.pixel00_loc + self.delta_x.mul(x as f64) + self.delta_y.mul(y as f64);
-            // let ray_dir = pixel_center - self.center;
-            // let r = Ray::new(self.center, ray_dir.unit_vec());
-            let r = self.get_ray(x, y, true);
-
-            let c = Self::ray_color(&r, &world);
-            *pixel = Rgb::from(c);
+            let mut c = Color::default();
+            for _ in 0..self.samples_per_pixel {
+                let r = self.get_ray(x, y, true);
+                // add to get the "medium color" of a point
+                c += Self::ray_color(&r, world);
+            }
+            *pixel = Rgb::from(c.mul(self.pixel_samples_scale));
         }
-        // the same thing but wit antialiasing(pick some random pixel arround to colorize the
-        // center pixe)
-        //     let mut c = Color::new(0.0, 0.0, 0.0);
-        //     for sample in 0..self.samples_per_pixel {
-        //         let r = self.get_ray(x, y);
-        //         c += Self::ray_color(&r, world);
-        //     }
-        //     // make a mediam from he valeu of color
-        //     *pixel = Rgb::from(c.mul(self.pixel_samples_scale));
-        // }
         buffer.save(self.image_name.as_str())
     }
 
@@ -115,7 +103,7 @@ impl Camera {
         f.aspect_ratio = aspect;
         f.image_wid = img_wid;
         f.image_name = String::from(img_name);
-        f.samples_per_pixel = 100;
+        f.samples_per_pixel = 10;
         f.pixel_samples_scale = 1.0 / f.samples_per_pixel as f64;
         return f;
     }

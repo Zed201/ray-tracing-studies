@@ -83,3 +83,11 @@ impl AddAssign for Color {
         self.rgb[2] += rhs.rgb[2];
     }
 }
+
+impl Default for Color {
+    fn default() -> Self {
+        Color {
+            rgb: Vec3::default(),
+        }
+    }
+}
