@@ -1,5 +1,6 @@
 use crate::{
     color::Color,
+    material::{self, Material},
     utils::INF,
     vec::{self, Vec3, VecTypes},
 };
@@ -114,12 +115,13 @@ impl hittable for hittable_list {
     }
 }
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Clone)]
 pub struct hit_record {
     pub point: Vec3,
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
+    // add material, but the trait is complex to add here
 }
 
 // the normal vector is point to outside/outward

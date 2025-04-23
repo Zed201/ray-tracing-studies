@@ -50,12 +50,29 @@ impl From<Rgb<u8>> for Color {
 
 impl From<Color> for Rgb<u8> {
     fn from(value: Color) -> Self {
+        // will format the color rgb in gamma 2, give more consistent colors
+        let x = if value.rgb[0] > 0.0 {
+            value.rgb[0].sqrt()
+        } else {
+            0.0
+        };
+        let y = if value.rgb[1] > 0.0 {
+            value.rgb[1].sqrt()
+        } else {
+            0.0
+        };
+        let z = if value.rgb[2] > 0.0 {
+            value.rgb[2].sqrt()
+        } else {
+            0.0
+        };
+
         // serve to limit the colors values to [0.0, 0.999]
         let inten = interval::new(0.0, 0.999);
         Self([
-            (inten.clamp(value.rgb[0]) * 256.0) as u8,
-            (inten.clamp(value.rgb[1]) * 256.0) as u8,
-            (inten.clamp(value.rgb[2]) * 256.0) as u8,
+            (inten.clamp(x) * 256.0) as u8,
+            (inten.clamp(y) * 256.0) as u8,
+            (inten.clamp(z) * 256.0) as u8,
         ])
     }
 }

@@ -1,5 +1,6 @@
 mod camera;
 mod color;
+mod material;
 mod ray;
 mod utils;
 mod vec;
@@ -20,6 +21,6 @@ fn main() {
         0.5,
     )));
     let asp: f64 = 16.0 / 9.0;
-    let mut c = camera::Camera::new(asp, 500, "image.png");
+    let mut c = camera::Camera::new(asp, 600, "image.png");
     let _ = c.render(&world);
 }
