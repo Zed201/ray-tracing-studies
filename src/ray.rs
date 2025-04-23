@@ -1,4 +1,8 @@
-use crate::vec::{self, Vec3};
+use crate::{
+    color::Color,
+    material::{DefaultMaterial, Material},
+    vec::{self, Vec3},
+};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Ray {
@@ -17,55 +21,6 @@ impl Ray {
     pub fn at(&self, t: f64) -> vec::Vec3 {
         return self.origin + self.direction.mul(t);
     }
-
-    // pub fn color(&self, world: &HittableList) -> Color {
-    //     // if self.hit_Sphere(Vec3::new(VecTypes::Coordinates, 0.0, 0.0, 5.0), 2.1) {
-    //     //     return Color::new(1.0, 0.0, 0.0);
-    //     // }
-    //     // let t1 = self.hit_Sphere(Vec3::new(VecTypes::Coordinates, 0.0, 0.0, -2.0), 1.1);
-    //     //
-    //     // if t1 > 0.0 {
-    //     //     // get the normal vector where the ray hit the Sphere, basicallu the r vector, the
-    //     //     // (0,0,-1) is because the camera point
-    //     //     let normal = self.at(t1).unit_vec();
-    //     //     return Color::new(normal[0] + 1.0, normal[1] + 1.0, normal[2] + 1.0).mul(0.5);
-    //     // }
-    //     let mut h = HitRecord::default();
-    //     if world.hit(&self, INF, 0.0, &mut h) {
-    //         return Color::from(
-    //             (h.normal + Vec3::new(VecTypes::Coordinates, 1.0, 1.0, 1.0)).mul(0.5),
-    //         );
-    //     }
-    //     // background
-    //     let unit = self.direction.unit_vec();
-    //     let a = 0.5 * (unit[1] + 1.0);
-    //     return Color::new(1.0, 1.0, 1.0).mul(1.0 - a) + Color::new(0.5, 0.7, 1.0).mul(a);
-    // }
-    // basically position a Sphere in the image,
-    // solve a 2 order equation envolve the ray and the Sphere center,
-    // if has 1 root theres in the border, if has 2 roots
-    // theres in the center but if theres no real roots, the ray(with origin in camera)
-    // the Sphere is not touched, so will not solve but determine the discriminant(delta);
-    // t^2*d^2 - 2*t*d*(C - Q) + ((C - Q)^2 - r^2) = 0
-    // where Q: ray origin, C: Sphere origin, r: sphere radius
-    // this formula origin is from out 0,0,0 Sphere 3d formula x^2 + y^2 + z^2 = r^2in
-    // the simplifies/substitute in the equation is (h +- sqrt(h^2 - ac))/a where h = b/-2 = d*(C - Q)
-    // pub fn hit_Sphere(&self, center: Vec3, radius: f64) -> f64 {
-    //     let oc = center - self.origin;
-    //     // let a = self.direction.dot(&self.direction);
-    //     let a = (self.direction.vec_length()).powi(2);
-    //     let h = self.direction.dot(&oc); // old b
-    //     //let c = oc.dot(&oc) - ((radius * radius) as f64);
-    //     let c = (oc.vec_length()).powi(2) - (radius.powi(2));
-    //     // let delta = b * b - 4.0 * a * c;
-    //     let delta = h.powi(2) - a * c;
-    //     if delta < 0.0 {
-    //         return -1.0;
-    //     } else {
-    //         // return (b - delta.sqrt()) / a;
-    //         return (h - delta.sqrt()) / a;
-    //     }
-    // }
 }
 
 // Hittable objects
@@ -106,13 +61,39 @@ impl Hittable for HittableList {
     }
 }
 
-#[derive(Default, Clone)]
 pub struct HitRecord {
     pub point: Vec3,
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
     // add material, but the trait is complex to add here
+    pub mat: Box<dyn Material>,
+}
+
+impl Clone for HitRecord {
+    fn clone(&self) -> Self {
+        HitRecord {
+            point: self.point.clone(),
+            normal: self.normal.clone(),
+            t: self.t.clone(),
+            front_face: self.front_face.clone(),
+            // Precisamos clonar o conteúdo da Box.
+            // Isso requer que o trait Material também suporte clonagem de objetos (object-safe Clone).
+            mat: self.mat.clone_box(),
+        }
+    }
+}
+
+impl Default for HitRecord {
+    fn default() -> Self {
+        HitRecord {
+            point: Vec3::default(),
+            normal: Vec3::default(),
+            t: f64::default(),
+            front_face: bool::default(),
+            mat: Box::new(DefaultMaterial {}),
+        }
+    }
 }
 
 // the normal vector is point to outside/outward
