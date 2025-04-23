@@ -1,5 +1,7 @@
 use std::ops::{Add, AddAssign, Index, IndexMut, Mul, Sub};
 
+use crate::utils::{self, random_interval_f64, randon_f64};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VecTypes {
     Color,
@@ -76,6 +78,43 @@ impl Vec3 {
 
     pub fn unit_vec(&self) -> Self {
         return self.div(self.vec_length());
+    }
+
+    pub fn random() -> Self {
+        Vec3::random_max_min(0.0, 1.0)
+    }
+
+    pub fn random_max_min(min: f64, max: f64) -> Self {
+        Vec3 {
+            typ: VecTypes::Coordinates,
+            x: random_interval_f64(min, max),
+            y: random_interval_f64(min, max),
+            z: random_interval_f64(min, max),
+        }
+    }
+
+    pub fn random_unit_vec() -> Self {
+        loop {
+            let p = Vec3::random_max_min(-1.0, 1.0);
+            let lensq = p.vec_length().powi(2);
+            if lensq <= 1.0 && 1e-160 < lensq {
+                // the first is for get a vec into a sphere with r = 1
+                // the second is for evite infinite cords
+                return p.unit_vec();
+            }
+        }
+    }
+
+    // get a random direction vector pointed to outside hemisphere,
+    // based on the dot op begin > 0, the angle is (90, -90)
+    pub fn random_on_hemisphere(normal: &Vec3) -> Self {
+        let p = Self::random_unit_vec();
+        if p.dot(normal) > 0.0 {
+            return p;
+        }
+        // invert the random
+        // need this syntax because the theres the mul trait
+        Vec3::mul(&p, -1.0)
     }
 }
 

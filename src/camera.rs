@@ -22,16 +22,24 @@ pub struct Camera {
     delta_x: Vec3,
     delta_y: Vec3,
     pixel_samples_scale: f64,
+    max_deep_ray: u8,
 }
 
 impl Camera {
     // based in the objects get the color of pixel pointed from the ray
-    fn ray_color(r: &Ray, world: &hittable_list) -> Color {
+    fn ray_color(r: &Ray, world: &hittable_list, deep: u8) -> Color {
+        if deep <= 0 {
+            return Color::default();
+        }
         let mut h = hit_record::default();
         if world.hit(&r, INF, 0.0, &mut h) {
-            return Color::from(
-                (h.normal + Vec3::new(VecTypes::Coordinates, 1.0, 1.0, 1.0)).mul(0.5),
-            );
+            // to simulate refelction will begin recursive calculation
+            // determine the random direction of the refelction
+            let n_dir = Vec3::random_on_hemisphere(&h.normal);
+            let n_r = Ray::new(h.point, n_dir);
+            // the we have a new ray with origin in the object
+            // the multiplied number will determine the "refelction factor" of the "light"
+            return Self::ray_color(&n_r, world, deep - 1).mul(0.5);
         }
         // background
         let unit = r.direction.unit_vec();
@@ -68,7 +76,7 @@ impl Camera {
             for _ in 0..self.samples_per_pixel {
                 let r = self.get_ray(x, y, true);
                 // add to get the "medium color" of a point
-                c += Self::ray_color(&r, world);
+                c += Self::ray_color(&r, world, self.max_deep_ray);
             }
             *pixel = Rgb::from(c.mul(self.pixel_samples_scale));
         }
@@ -105,6 +113,7 @@ impl Camera {
         f.image_name = String::from(img_name);
         f.samples_per_pixel = 10;
         f.pixel_samples_scale = 1.0 / f.samples_per_pixel as f64;
+        f.max_deep_ray = 5;
         return f;
     }
 }
