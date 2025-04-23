@@ -7,7 +7,7 @@ use std::{
 use image::Rgb;
 
 use crate::{
-    utils::interval,
+    utils::Interval,
     vec::{self, Vec3},
 };
 
@@ -68,7 +68,7 @@ impl From<Color> for Rgb<u8> {
         };
 
         // serve to limit the colors values to [0.0, 0.999]
-        let inten = interval::new(0.0, 0.999);
+        let inten = Interval::new(0.0, 0.999);
         Self([
             (inten.clamp(x) * 256.0) as u8,
             (inten.clamp(y) * 256.0) as u8,

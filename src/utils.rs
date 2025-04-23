@@ -1,3 +1,4 @@
+#![allow(dead_code, unused)]
 use rand::prelude::*;
 
 use crate::vec::{Vec3, VecTypes};
@@ -15,18 +16,20 @@ pub fn randon_f64() -> f64 {
     rng.random::<f64>()
 }
 
-pub fn random_interval_f64(min: f64, max: f64) -> f64 {
+// so por preguica de trocar
+#[allow(non_snake_case)]
+pub fn random_Interval_f64(min: f64, max: f64) -> f64 {
     min + randon_f64() * (max - min)
 }
 
-pub struct interval {
+pub struct Interval {
     pub min: f64,
     pub max: f64,
 }
 
-impl interval {
+impl Interval {
     pub fn new(min: f64, max: f64) -> Self {
-        interval { min, max }
+        Interval { min, max }
     }
 
     pub fn surrounds(&self, x: f64) -> bool {
@@ -47,9 +50,9 @@ impl interval {
     }
 }
 
-impl Default for interval {
+impl Default for Interval {
     fn default() -> Self {
-        interval {
+        Interval {
             min: -INF,
             max: INF,
         }

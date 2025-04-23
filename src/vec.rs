@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, Index, IndexMut, Mul, Sub};
 
-use crate::utils::{self, random_interval_f64, randon_f64};
+use crate::utils::random_Interval_f64;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VecTypes {
@@ -87,9 +87,9 @@ impl Vec3 {
     pub fn random_max_min(min: f64, max: f64) -> Self {
         Vec3 {
             typ: VecTypes::Coordinates,
-            x: random_interval_f64(min, max),
-            y: random_interval_f64(min, max),
-            z: random_interval_f64(min, max),
+            x: random_Interval_f64(min, max),
+            y: random_Interval_f64(min, max),
+            z: random_Interval_f64(min, max),
         }
     }
 

@@ -5,18 +5,18 @@ mod ray;
 mod utils;
 mod vec;
 
-use ray::{hittable_list, sphere};
+use ray::{HittableList, Sphere};
 use vec::*;
 
 fn main() {
     // Objects
-    let mut world = hittable_list::new();
+    let mut world = HittableList::new();
 
-    world.add(Box::new(sphere::new(
+    world.add(Box::new(Sphere::new(
         Vec3::new(VecTypes::Coordinates, 0.0, -100.5, -1.0),
         100.0,
     )));
-    world.add(Box::new(sphere::new(
+    world.add(Box::new(Sphere::new(
         Vec3::new(VecTypes::Coordinates, 0.0, 0.0, -1.0),
         0.5,
     )));

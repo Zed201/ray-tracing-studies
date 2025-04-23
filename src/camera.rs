@@ -2,8 +2,8 @@ use image::{ImageBuffer, Rgb, RgbImage};
 
 use crate::{
     color::Color,
-    ray::{Ray, hit_record, hittable, hittable_list},
-    utils::{self, INF, sample_square},
+    ray::{HitRecord, Hittable, HittableList, Ray},
+    utils::{INF, sample_square},
     vec::{Vec3, VecTypes},
 };
 
@@ -27,11 +27,11 @@ pub struct Camera {
 
 impl Camera {
     // based in the objects get the color of pixel pointed from the ray
-    fn ray_color(r: &Ray, world: &hittable_list, deep: u8) -> Color {
+    fn ray_color(r: &Ray, world: &HittableList, deep: u8) -> Color {
         if deep <= 0 {
             return Color::default();
         }
-        let mut h = hit_record::default();
+        let mut h = HitRecord::default();
         if world.hit(&r, INF, 0.1, &mut h) {
             // to simulate refelction will begin recursive calculation
             // determine the random direction of the refelction
@@ -71,7 +71,7 @@ impl Camera {
         Ray::new(self.center, ray_dir)
     }
 
-    pub fn render(&mut self, world: &hittable_list) -> Result<(), image::ImageError> {
+    pub fn render(&mut self, world: &HittableList) -> Result<(), image::ImageError> {
         self.inititalize();
         let mut buffer: RgbImage = ImageBuffer::new(self.image_wid, self.image_hei);
         // resolve with get the pixel beffore the get ray, or passing the args to ray

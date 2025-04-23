@@ -1,8 +1,8 @@
 use crate::{
     color::Color,
-    ray::{Ray, hit_record},
+    ray::{HitRecord, Ray},
 };
 
 pub trait Material {
-    fn reflect(r_in: &Ray, r_ref: &Ray, rec: &hit_record, attenuation: &Color) -> bool;
+    fn reflect(r_in: &Ray, r_ref: &Ray, rec: &HitRecord, attenuation: &Color) -> bool;
 }
