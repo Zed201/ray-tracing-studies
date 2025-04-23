@@ -4,7 +4,7 @@ use crate::{
     vec::{self, Vec3},
 };
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Ray {
     // the central idea is represent
     // P(t) = A + tB, where A is the origin and B is the direction
@@ -117,14 +117,20 @@ impl HitRecord {
 pub struct Sphere {
     center: Vec3,
     radius: f64,
+    mat: Box<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f64) -> Self {
+    pub fn new(center: Vec3, radius: f64, mat: Box<dyn Material>) -> Self {
         Sphere {
             center,
             radius: radius.max(0.0),
+            mat,
         }
+    }
+
+    pub fn to_box(self) -> Box<Self> {
+        Box::new(self)
     }
 }
 
@@ -159,6 +165,8 @@ impl Hittable for Sphere {
         let outward_normal = (rec.point - self.center).div(self.radius);
         rec.set_face_normal(&r, outward_normal);
 
+        // can't impl copy basic for a trait
+        rec.mat = self.mat.clone_box();
         return true;
     }
 }

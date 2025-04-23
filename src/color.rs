@@ -1,7 +1,7 @@
 use core::fmt;
 use std::{
     fmt::Formatter,
-    ops::{Add, AddAssign},
+    ops::{Add, AddAssign, Mul},
 };
 
 use image::Rgb;
@@ -106,5 +106,12 @@ impl Default for Color {
         Color {
             rgb: Vec3::default(),
         }
+    }
+}
+
+impl Mul for Color {
+    type Output = Self;
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self::from(self.rgb * rhs.rgb)
     }
 }

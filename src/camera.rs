@@ -35,15 +35,19 @@ impl Camera {
         if world.hit(&r, INF, 0.1, &mut h) {
             // to simulate refelction will begin recursive calculation
             // determine the random direction of the refelction
-            // let n_dir = Vec3::random_on_hemisphere(&h.normal);
-
             // using the lambertioan distribution
-            let n_dir = h.normal + Vec3::random_unit_vec();
-            let n_r = Ray::new(h.point, n_dir);
+            // let n_dir = h.normal + Vec3::random_unit_vec();
+            // let n_r = Ray::new(h.point, n_dir);
 
-            // the we have a new ray with origin in the object
-            // the multiplied number will determine the "refelction factor" of the "light"
-            return Self::ray_color(&n_r, world, deep - 1).mul(0.5);
+            // refelction based on material
+            let mut reflected_r = Ray::default();
+            let mut attenuation = Color::default();
+            // hitted, the function of material is for check is the refelction will happen
+            // and what color is attenuation be
+            if h.mat.reflect(&r, &mut reflected_r, &h, &mut attenuation) {
+                return attenuation * Self::ray_color(r, world, deep - 1);
+            }
+            return Color::default();
         }
         // background
         let unit = r.direction.unit_vec();

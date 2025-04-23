@@ -116,14 +116,22 @@ impl Vec3 {
         // need this syntax because the theres the mul trait
         Vec3::mul(&p, -1.0)
     }
+
+    // return tre is the vector is very close to zero in all cords
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        (self.x.abs() < s) && (self.y.abs() < s) && (self.z.abs() < s)
+    }
+
+    // ideal reflect of a ray into a metal surface, like a glass
+    pub fn reflected_vec(&self, normal: &Vec3) -> Self {
+        *self - Self::mul(normal, 2.0 * self.dot(&normal))
+    }
 }
 
 impl Add for Vec3 {
     type Output = Self;
     fn add(self, rhs: Self) -> Self::Output {
-        if self.typ != rhs.typ {
-            panic!("Error add diferents VecTypes");
-        }
         Vec3 {
             typ: self.typ,
             x: self.x + rhs.x,
@@ -135,9 +143,6 @@ impl Add for Vec3 {
 
 impl AddAssign for Vec3 {
     fn add_assign(&mut self, rhs: Self) {
-        if self.typ != rhs.typ {
-            panic!("Error add_assign diferents VecTypes");
-        }
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;
@@ -147,9 +152,6 @@ impl AddAssign for Vec3 {
 impl Sub for Vec3 {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self::Output {
-        if self.typ != rhs.typ {
-            panic!("Error add diferents VecTypes");
-        }
         Vec3 {
             typ: self.typ,
             x: self.x - rhs.x,
@@ -162,9 +164,6 @@ impl Sub for Vec3 {
 impl Mul for Vec3 {
     type Output = Vec3;
     fn mul(self, rhs: Self) -> Self::Output {
-        if self.typ != rhs.typ {
-            panic!("Error mult diferents VecTypes");
-        }
         Vec3 {
             typ: self.typ,
             x: self.y * rhs.z - self.z * rhs.y,
