@@ -14,7 +14,7 @@ fn main() {
     // Objects
     let mut world = HittableList::new();
 
-    let m_ground = Lambertian::new(Color::new(0.0, 0.8, 0.0));
+    let m_ground = Lambertian::new(Color::new(0.0, 0.8, 0.4));
     let m_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
     let m_left = Metal::new(Color::new(0.8, 0.8, 0.8));
     let m_rigth = Metal::new(Color::new(0.5, 0.6, 0.2));
@@ -46,6 +46,6 @@ fn main() {
     world.add(r.to_box());
 
     let asp: f64 = 16.0 / 9.0;
-    let mut c = camera::Camera::new(asp, 600, "image.png");
+    let mut c = camera::Camera::new(asp, 500, "image.png");
     let _ = c.render(&world);
 }

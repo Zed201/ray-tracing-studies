@@ -32,13 +32,7 @@ impl Camera {
             return Color::default();
         }
         let mut h = HitRecord::default();
-        if world.hit(&r, INF, 0.1, &mut h) {
-            // to simulate refelction will begin recursive calculation
-            // determine the random direction of the refelction
-            // using the lambertioan distribution
-            // let n_dir = h.normal + Vec3::random_unit_vec();
-            // let n_r = Ray::new(h.point, n_dir);
-
+        if world.hit(&r, INF, 0.001, &mut h) {
             // refelction based on material
             let mut reflected_r = Ray::default();
             let mut attenuation = Color::default();
@@ -119,7 +113,7 @@ impl Camera {
         f.aspect_ratio = aspect;
         f.image_wid = img_wid;
         f.image_name = String::from(img_name);
-        f.samples_per_pixel = 10;
+        f.samples_per_pixel = 15;
         f.pixel_samples_scale = 1.0 / f.samples_per_pixel as f64;
         f.max_deep_ray = 5;
         return f;

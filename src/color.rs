@@ -112,6 +112,10 @@ impl Default for Color {
 impl Mul for Color {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self::Output {
-        Self::from(self.rgb * rhs.rgb)
+        Color::new(
+            self.rgb[0] * rhs.rgb[0],
+            self.rgb[1] * rhs.rgb[1],
+            self.rgb[2] * rhs.rgb[2],
+        )
     }
 }
