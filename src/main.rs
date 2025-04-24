@@ -6,7 +6,7 @@ mod utils;
 mod vec;
 
 use color::Color;
-use material::{Lambertian, Material, Metal};
+use material::{Dieletric, Lambertian, Material, Metal};
 use ray::{HittableList, Sphere};
 use vec::*;
 
@@ -16,7 +16,7 @@ fn main() {
 
     let m_ground = Lambertian::new(Color::new(0.0, 0.8, 0.4));
     let m_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
-    let m_left = Metal::new(Color::new(0.8, 0.8, 0.8), 0.3);
+    let m_left = Dieletric::new(1.2);
     let m_rigth = Metal::new(Color::new(0.5, 0.6, 0.2), 1.0);
 
     let g = Sphere::new(

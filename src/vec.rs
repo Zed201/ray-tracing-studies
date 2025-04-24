@@ -127,6 +127,18 @@ impl Vec3 {
     pub fn reflected_vec(&self, normal: &Vec3) -> Self {
         *self - Self::mul(normal, 2.0 * self.dot(&normal))
     }
+
+    // refract a vector using lens law, where refraction_const is N/N'
+    pub fn refract(&self, normal: &Vec3, refraction_const: f64) -> Self {
+        // angle of normal and self, both need to be as unit
+        let cos_theta = self.mul(-1.0).dot(normal).min(1.0);
+
+        // perpendicular comp of refracted vector
+        let r_out_perp = Self::mul(&self.add(normal.mul(cos_theta)), refraction_const);
+        // parallel comp
+        let r_out_para = Self::mul(normal, (1.0 - r_out_perp.vec_length().powi(2)).abs().sqrt());
+        r_out_perp + Self::mul(&r_out_para, -1.0)
+    }
 }
 
 impl Add for Vec3 {

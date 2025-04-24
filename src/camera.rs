@@ -73,15 +73,15 @@ impl Camera {
     pub fn render(&mut self, world: &HittableList) -> Result<(), image::ImageError> {
         self.inititalize();
         let mut buffer: RgbImage = ImageBuffer::new(self.image_wid, self.image_hei);
+        let antialiasing = true;
+        let sample = if antialiasing {
+            (self.samples_per_pixel, true)
+        } else {
+            (1, false)
+        };
 
         buffer.par_enumerate_pixels_mut().for_each(|(x, y, pixel)| {
             // parallel the antialiasing
-            let antialiasing = true;
-            let sample = if antialiasing {
-                (self.samples_per_pixel, true)
-            } else {
-                (1, false)
-            };
             let c = (0..sample.0)
                 .into_par_iter()
                 .map(|_| {

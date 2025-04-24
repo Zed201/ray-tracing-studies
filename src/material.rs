@@ -117,3 +117,42 @@ impl Material for Metal {
         true
     }
 }
+
+pub struct Dieletric {
+    // index relative to air/vacuum
+    refraction_index: f64,
+}
+
+impl Dieletric {
+    pub fn new(refraction_index: f64) -> Self {
+        Self { refraction_index }
+    }
+}
+
+impl Material for Dieletric {
+    fn clone_box(&self) -> Box<dyn Material> {
+        Box::new(Self {
+            refraction_index: self.refraction_index,
+        })
+    }
+    fn reflect(
+        &self,
+        r_in: &Ray,
+        r_ref: &mut Ray,
+        rec: &HitRecord,
+        attenuation: &mut Color,
+    ) -> bool {
+        *attenuation = Color::new(1.0, 1.0, 1.0);
+        let ri = if rec.front_face {
+            1.0 / self.refraction_index
+        } else {
+            self.refraction_index
+        };
+
+        let refracted = r_in.direction.unit_vec().refract(&rec.normal, ri);
+
+        // a better name would be scattered
+        *r_ref = Ray::new(rec.point, refracted);
+        true
+    }
+}
