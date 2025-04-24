@@ -51,6 +51,7 @@ impl Lambertian {
     }
 }
 
+#[allow(unused)]
 impl Material for Lambertian {
     fn clone_box(&self) -> Box<dyn Material> {
         Box::new(Self {

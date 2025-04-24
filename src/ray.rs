@@ -1,5 +1,4 @@
 use crate::{
-    color::Color,
     material::{DefaultMaterial, Material},
     vec::{self, Vec3},
 };
