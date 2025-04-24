@@ -132,6 +132,7 @@ impl Vec3 {
     pub fn refract(&self, normal: &Vec3, refraction_const: f64) -> Self {
         // angle of normal and self, both need to be as unit
         let cos_theta = self.mul(-1.0).dot(normal).min(1.0);
+        let sen_theta = (1.0 - cos_theta.powi(2)).sqrt();
 
         // perpendicular comp of refracted vector
         let r_out_perp = Self::mul(&self.add(normal.mul(cos_theta)), refraction_const);

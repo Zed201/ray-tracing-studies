@@ -125,7 +125,7 @@ impl Camera {
         f.image_name = String::from(img_name);
         f.samples_per_pixel = 7;
         f.pixel_samples_scale = 1.0 / f.samples_per_pixel as f64;
-        f.max_deep_ray = 5;
+        f.max_deep_ray = 10;
         return f;
     }
 }

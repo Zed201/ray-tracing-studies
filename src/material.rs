@@ -1,6 +1,7 @@
 use crate::{
     color::Color,
     ray::{HitRecord, Ray},
+    utils::randon_f64,
     vec::Vec3,
 };
 
@@ -127,6 +128,12 @@ impl Dieletric {
     pub fn new(refraction_index: f64) -> Self {
         Self { refraction_index }
     }
+
+    // Schlick aproach to refract based on a angle
+    pub fn reflectance(&self, cos: f64) -> f64 {
+        let r0 = ((1.0 - self.refraction_index) / (1.0 + self.refraction_index)).powi(2);
+        r0 + (1.0 - r0) * (1.0 - cos).powi(5)
+    }
 }
 
 impl Material for Dieletric {
@@ -149,10 +156,23 @@ impl Material for Dieletric {
             self.refraction_index
         };
 
-        let refracted = r_in.direction.unit_vec().refract(&rec.normal, ri);
+        let dir_unit = r_in.direction.unit_vec();
+        // add the lens law inequality
+        let cos_theta = dir_unit.mul(-1.0).dot(&rec.normal).min(1.0);
+        let sin_theta = (1.0 - cos_theta.powi(2)).sqrt();
 
+        let dir_ref: Vec3;
+
+        // break the lens law these edge cases, so reflect and not refract
+        // || use the Schlick aproach
+        if ri * sin_theta > 1.0 || self.reflectance(cos_theta) > randon_f64() {
+            dir_ref = dir_unit.reflected_vec(&rec.normal);
+        } else {
+            dir_ref = dir_unit.refract(&rec.normal, ri);
+        }
+
+        *r_ref = Ray::new(rec.point, dir_ref);
         // a better name would be scattered
-        *r_ref = Ray::new(rec.point, refracted);
         true
     }
 }
