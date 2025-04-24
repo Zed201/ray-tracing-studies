@@ -1,4 +1,5 @@
 use image::{ImageBuffer, Rgb, RgbImage};
+use rayon::prelude::*;
 
 use crate::{
     color::Color,
@@ -72,16 +73,25 @@ impl Camera {
     pub fn render(&mut self, world: &HittableList) -> Result<(), image::ImageError> {
         self.inititalize();
         let mut buffer: RgbImage = ImageBuffer::new(self.image_wid, self.image_hei);
-        // resolve with get the pixel beffore the get ray, or passing the args to ray
-        for (x, y, pixel) in buffer.enumerate_pixels_mut() {
-            let mut c = Color::default();
-            for _ in 0..self.samples_per_pixel {
-                let r = self.get_ray(x, y, true);
-                // add to get the "medium color" of a point
-                c += Self::ray_color(&r, world, self.max_deep_ray);
-            }
+
+        buffer.par_enumerate_pixels_mut().for_each(|(x, y, pixel)| {
+            // parallel the antialiasing
+            let antialiasing = true;
+            let sample = if antialiasing {
+                (self.samples_per_pixel, true)
+            } else {
+                (1, false)
+            };
+            let c = (0..sample.0)
+                .into_par_iter()
+                .map(|_| {
+                    let r = self.get_ray(x, y, sample.1);
+                    Self::ray_color(&r, world, self.max_deep_ray)
+                })
+                .reduce(|| Color::default(), |a, b| a + b);
             *pixel = Rgb::from(c.mul(self.pixel_samples_scale));
-        }
+        });
+
         buffer.save(self.image_name.as_str())
     }
 
@@ -113,7 +123,7 @@ impl Camera {
         f.aspect_ratio = aspect;
         f.image_wid = img_wid;
         f.image_name = String::from(img_name);
-        f.samples_per_pixel = 15;
+        f.samples_per_pixel = 7;
         f.pixel_samples_scale = 1.0 / f.samples_per_pixel as f64;
         f.max_deep_ray = 5;
         return f;

@@ -16,8 +16,8 @@ fn main() {
 
     let m_ground = Lambertian::new(Color::new(0.0, 0.8, 0.4));
     let m_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
-    let m_left = Metal::new(Color::new(0.8, 0.8, 0.8));
-    let m_rigth = Metal::new(Color::new(0.5, 0.6, 0.2));
+    let m_left = Metal::new(Color::new(0.8, 0.8, 0.8), 0.3);
+    let m_rigth = Metal::new(Color::new(0.5, 0.6, 0.2), 1.0);
 
     let g = Sphere::new(
         Vec3::new(VecTypes::Coordinates, 0.0, -100.5, -1.0),
@@ -46,6 +46,6 @@ fn main() {
     world.add(r.to_box());
 
     let asp: f64 = 16.0 / 9.0;
-    let mut c = camera::Camera::new(asp, 500, "image.png");
+    let mut c = camera::Camera::new(asp, 800, "image.png");
     let _ = c.render(&world);
 }

@@ -24,20 +24,20 @@ impl Ray {
 }
 
 // Hittable objects
-pub trait Hittable {
+pub trait Hittable: Sync {
     fn hit(&self, r: &Ray, r_max: f64, r_min: f64, rec: &mut HitRecord) -> bool;
     // the idea is check if the t is t_min < t < t_max and save this in HitRecord
     // there best ways to do that but i will upgrade later
 }
 
 pub struct HittableList {
-    objs: Vec<Box<dyn Hittable>>, // vec de objetos que tem a trait hittable
+    objs: Vec<Box<dyn Hittable + Sync>>, // vec de objetos que tem a trait hittable
 }
 impl HittableList {
     pub fn new() -> Self {
         HittableList { objs: Vec::new() }
     }
-    pub fn add(&mut self, h: Box<dyn Hittable>) {
+    pub fn add(&mut self, h: Box<dyn Hittable + Sync>) {
         self.objs.push(h);
     }
 }
@@ -117,11 +117,11 @@ impl HitRecord {
 pub struct Sphere {
     center: Vec3,
     radius: f64,
-    mat: Box<dyn Material>,
+    mat: Box<dyn Material + Sync>,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f64, mat: Box<dyn Material>) -> Self {
+    pub fn new(center: Vec3, radius: f64, mat: Box<dyn Material + Sync>) -> Self {
         Sphere {
             center,
             radius: radius.max(0.0),

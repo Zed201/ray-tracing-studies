@@ -4,7 +4,7 @@ use crate::{
     vec::Vec3,
 };
 
-pub trait Material {
+pub trait Material: Sync {
     // or scatter
     fn reflect(
         &self,
@@ -83,11 +83,14 @@ impl Material for Lambertian {
 
 pub struct Metal {
     albedo: Color,
+    // fuzz is [0.0, 1.0], 1.0 is total random, like matte metal, 0.0 is total reflected metal
+    fuzz: f64,
 }
 
 impl Metal {
-    pub fn new(albedo: Color) -> Self {
-        Self { albedo }
+    pub fn new(albedo: Color, fuzz: f64) -> Self {
+        let f = if fuzz < 1.0 { fuzz } else { 1.0 };
+        Self { albedo, fuzz: f }
     }
 }
 
@@ -95,6 +98,7 @@ impl Material for Metal {
     fn clone_box(&self) -> Box<dyn Material> {
         Box::new(Self {
             albedo: self.albedo,
+            fuzz: self.fuzz,
         })
     }
     fn reflect(
@@ -104,7 +108,9 @@ impl Material for Metal {
         rec: &HitRecord,
         attenuation: &mut Color,
     ) -> bool {
-        let reflect_dir = r_in.direction.reflected_vec(&rec.normal);
+        let mut reflect_dir = r_in.direction.reflected_vec(&rec.normal);
+        // add fuzzy reflection, let the metal matte
+        reflect_dir = reflect_dir.unit_vec() + Vec3::random_unit_vec().mul(self.fuzz);
         *r_ref = Ray::new(rec.point, reflect_dir);
         *attenuation = self.albedo;
         true
