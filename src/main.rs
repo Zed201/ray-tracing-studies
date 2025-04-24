@@ -6,7 +6,7 @@ mod utils;
 mod vec;
 
 use color::Color;
-use material::{Lambertian, Material};
+use material::{Lambertian, Material, Metal};
 use ray::{HittableList, Sphere};
 use vec::*;
 
@@ -16,8 +16,8 @@ fn main() {
 
     let m_ground = Lambertian::new(Color::new(0.0, 0.8, 0.0));
     let m_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
-    let m_left = Lambertian::new(Color::new(0.8, 0.8, 0.8));
-    let m_rigth = Lambertian::new(Color::new(0.5, 0.6, 0.2));
+    let m_left = Metal::new(Color::new(0.8, 0.8, 0.8));
+    let m_rigth = Metal::new(Color::new(0.5, 0.6, 0.2));
 
     let g = Sphere::new(
         Vec3::new(VecTypes::Coordinates, 0.0, -100.5, -1.0),
@@ -28,17 +28,17 @@ fn main() {
     let c = Sphere::new(
         Vec3::new(VecTypes::Coordinates, 0.0, 0.0, -1.2),
         0.5,
-        m_ground.clone_box(),
+        m_center.clone_box(),
     );
     let l = Sphere::new(
         Vec3::new(VecTypes::Coordinates, -1.0, 0.0, -1.0),
         0.5,
-        m_ground.clone_box(),
+        m_left.clone_box(),
     );
     let r = Sphere::new(
         Vec3::new(VecTypes::Coordinates, 1.0, 0.0, -1.0),
         0.5,
-        m_ground.clone_box(),
+        m_rigth.clone_box(),
     );
     world.add(g.to_box());
     world.add(c.to_box());

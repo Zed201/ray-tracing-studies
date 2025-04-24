@@ -45,7 +45,7 @@ impl Camera {
             // hitted, the function of material is for check is the refelction will happen
             // and what color is attenuation be
             if h.mat.reflect(&r, &mut reflected_r, &h, &mut attenuation) {
-                return attenuation * Self::ray_color(r, world, deep - 1);
+                return attenuation * Self::ray_color(&reflected_r, world, deep - 1);
             }
             return Color::default();
         }

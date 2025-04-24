@@ -64,6 +64,46 @@ impl Material for Lambertian {
         rec: &HitRecord,
         attenuation: &mut Color,
     ) -> bool {
+        // let reflect_dir = r_in.direction.reflected_vec(&rec.normal);
+        // *r_ref = Ray::new(rec.point, reflect_dir);
+        // *attenuation = self.albedo;
+        // true
+        let mut ref_dir = rec.normal + Vec3::random_unit_vec();
+        if ref_dir.near_zero() {
+            ref_dir = rec.normal;
+        }
+
+        *r_ref = Ray::new(rec.point, ref_dir);
+        *attenuation = self.albedo;
+        true
+    }
+}
+
+// TODO: put albedo color in trait and new funciton(see how place funciton in trait)
+
+pub struct Metal {
+    albedo: Color,
+}
+
+impl Metal {
+    pub fn new(albedo: Color) -> Self {
+        Self { albedo }
+    }
+}
+
+impl Material for Metal {
+    fn clone_box(&self) -> Box<dyn Material> {
+        Box::new(Self {
+            albedo: self.albedo,
+        })
+    }
+    fn reflect(
+        &self,
+        r_in: &Ray,
+        r_ref: &mut Ray,
+        rec: &HitRecord,
+        attenuation: &mut Color,
+    ) -> bool {
         let reflect_dir = r_in.direction.reflected_vec(&rec.normal);
         *r_ref = Ray::new(rec.point, reflect_dir);
         *attenuation = self.albedo;
