@@ -11,7 +11,7 @@ use crate::{
     vec::{self, Vec3},
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 pub struct Color {
     pub rgb: vec::Vec3,
 }
@@ -98,14 +98,6 @@ impl AddAssign for Color {
         self.rgb[0] += rhs.rgb[0];
         self.rgb[1] += rhs.rgb[1];
         self.rgb[2] += rhs.rgb[2];
-    }
-}
-
-impl Default for Color {
-    fn default() -> Self {
-        Color {
-            rgb: Vec3::default(),
-        }
     }
 }
 

@@ -2,16 +2,11 @@ use std::ops::{Add, AddAssign, Index, IndexMut, Mul, Sub};
 
 use crate::utils::random_Interval_f64;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum VecTypes {
     Color,
+    #[default]
     Coordinates,
-}
-
-impl Default for VecTypes {
-    fn default() -> Self {
-        VecTypes::Coordinates
-    }
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -30,15 +25,15 @@ impl Vec3 {
     // retornar x, y, z pelo indice apenas
     pub fn get(&self, i: u8) -> f64 {
         match i {
-            0 => return self.x,
-            1 => return self.y,
-            2 => return self.z,
+            0 => self.x,
+            1 => self.y,
+            2 => self.z,
             _ => panic!("Error on index Vec3 componenets"),
         }
     }
 
     pub fn vec_length(&self) -> f64 {
-        return ((self.x * self.x + self.y * self.y + self.z * self.z) as f64).sqrt();
+        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 
     // soma a partir de um numero, retornando um novo Vec3
@@ -64,7 +59,7 @@ impl Vec3 {
         if self.typ != d.typ {
             panic!("Diferents Vec3Types try dotted");
         }
-        return self.x * d.x + self.y * d.y + self.z * d.z;
+        self.x * d.x + self.y * d.y + self.z * d.z
     }
 
     pub fn div(&self, u: f64) -> Self {
@@ -77,7 +72,7 @@ impl Vec3 {
     }
 
     pub fn unit_vec(&self) -> Self {
-        return self.div(self.vec_length());
+        self.div(self.vec_length())
     }
 
     pub fn random() -> Self {
@@ -125,15 +120,13 @@ impl Vec3 {
 
     // ideal reflect of a ray into a metal surface, like a glass
     pub fn reflected_vec(&self, normal: &Vec3) -> Self {
-        *self - Self::mul(normal, 2.0 * self.dot(&normal))
+        *self - Self::mul(normal, 2.0 * self.dot(normal))
     }
 
     // refract a vector using lens law, where refraction_const is N/N'
     pub fn refract(&self, normal: &Vec3, refraction_const: f64) -> Self {
         // angle of normal and self, both need to be as unit
         let cos_theta = self.mul(-1.0).dot(normal).min(1.0);
-        let sen_theta = (1.0 - cos_theta.powi(2)).sqrt();
-
         // perpendicular comp of refracted vector
         let r_out_perp = Self::mul(&self.add(normal.mul(cos_theta)), refraction_const);
         // parallel comp
@@ -190,9 +183,9 @@ impl Index<usize> for Vec3 {
     type Output = f64;
     fn index(&self, index: usize) -> &Self::Output {
         match index {
-            0 => return &self.x,
-            1 => return &self.y,
-            2 => return &self.z,
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
             _ => panic!("Error on index Vec3 componenets"),
         }
     }
@@ -201,9 +194,9 @@ impl Index<usize> for Vec3 {
 impl IndexMut<usize> for Vec3 {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         match index {
-            0 => return &mut self.x,
-            1 => return &mut self.y,
-            2 => return &mut self.z,
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
             _ => panic!("Error on index Vec3 componenets"),
         }
     }

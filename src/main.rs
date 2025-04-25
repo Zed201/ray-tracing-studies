@@ -46,11 +46,11 @@ fn main() {
         0.5,
         m_rigth.clone_box(),
     );
-    world.add(g.to_box());
-    world.add(c.to_box());
-    world.add(l.to_box());
-    world.add(r.to_box());
-    world.add(l_inside.to_box());
+    world.add(g.boxed());
+    world.add(c.boxed());
+    world.add(l.boxed());
+    world.add(r.boxed());
+    world.add(l_inside.boxed());
 
     let asp: f64 = 16.0 / 9.0;
     let mut c = camera::Camera::new(asp, 800, "image.png");

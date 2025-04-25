@@ -18,7 +18,7 @@ impl Ray {
     }
 
     pub fn at(&self, t: f64) -> vec::Vec3 {
-        return self.origin + self.direction.mul(t);
+        self.origin + self.direction.mul(t)
     }
 }
 
@@ -56,7 +56,7 @@ impl Hittable for HittableList {
             }
         }
 
-        return hit_any;
+        hit_any
     }
 }
 
@@ -72,10 +72,10 @@ pub struct HitRecord {
 impl Clone for HitRecord {
     fn clone(&self) -> Self {
         HitRecord {
-            point: self.point.clone(),
-            normal: self.normal.clone(),
-            t: self.t.clone(),
-            front_face: self.front_face.clone(),
+            point: self.point,
+            normal: self.normal,
+            t: self.t,
+            front_face: self.front_face,
             // Precisamos clonar o conteúdo da Box.
             // Isso requer que o trait Material também suporte clonagem de objetos (object-safe Clone).
             mat: self.mat.clone_box(),
@@ -128,7 +128,7 @@ impl Sphere {
         }
     }
 
-    pub fn to_box(self) -> Box<Self> {
+    pub fn boxed(self) -> Box<Self> {
         Box::new(self)
     }
 }
@@ -162,10 +162,10 @@ impl Hittable for Sphere {
         rec.t = root;
         rec.point = r.at(root);
         let outward_normal = (rec.point - self.center).div(self.radius);
-        rec.set_face_normal(&r, outward_normal);
+        rec.set_face_normal(r, outward_normal);
 
         // can't impl copy basic for a trait
         rec.mat = self.mat.clone_box();
-        return true;
+        true
     }
 }

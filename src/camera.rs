@@ -29,17 +29,17 @@ pub struct Camera {
 impl Camera {
     // based in the objects get the color of pixel pointed from the ray
     fn ray_color(r: &Ray, world: &HittableList, deep: u8) -> Color {
-        if deep <= 0 {
+        if deep == 0 {
             return Color::default();
         }
         let mut h = HitRecord::default();
-        if world.hit(&r, INF, 0.001, &mut h) {
+        if world.hit(r, INF, 0.001, &mut h) {
             // refelction based on material
             let mut reflected_r = Ray::default();
             let mut attenuation = Color::default();
             // hitted, the function of material is for check is the refelction will happen
             // and what color is attenuation be
-            if h.mat.reflect(&r, &mut reflected_r, &h, &mut attenuation) {
+            if h.mat.reflect(r, &mut reflected_r, &h, &mut attenuation) {
                 return attenuation * Self::ray_color(&reflected_r, world, deep - 1);
             }
             return Color::default();
@@ -47,7 +47,7 @@ impl Camera {
         // background
         let unit = r.direction.unit_vec();
         let a = 0.5 * (unit[1] + 1.0);
-        return Color::new(1.0, 1.0, 1.0).mul(1.0 - a) + Color::new(0.5, 0.7, 1.0).mul(a);
+        Color::new(1.0, 1.0, 1.0).mul(1.0 - a) + Color::new(0.5, 0.7, 1.0).mul(a)
     }
 
     // will get a rondom ray from camera to arround the i, j pixel
@@ -88,7 +88,7 @@ impl Camera {
                     let r = self.get_ray(x, y, sample.1);
                     Self::ray_color(&r, world, self.max_deep_ray)
                 })
-                .reduce(|| Color::default(), |a, b| a + b);
+                .reduce(Color::default, |a, b| a + b);
             *pixel = Rgb::from(c.mul(self.pixel_samples_scale));
         });
 
@@ -126,6 +126,6 @@ impl Camera {
         f.samples_per_pixel = 7;
         f.pixel_samples_scale = 1.0 / f.samples_per_pixel as f64;
         f.max_deep_ray = 10;
-        return f;
+        f
     }
 }

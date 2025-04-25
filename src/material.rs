@@ -161,16 +161,13 @@ impl Material for Dieletric {
         let cos_theta = dir_unit.mul(-1.0).dot(&rec.normal).min(1.0);
         let sin_theta = (1.0 - cos_theta.powi(2)).sqrt();
 
-        let dir_ref: Vec3;
-
         // break the lens law these edge cases, so reflect and not refract
         // || use the Schlick aproach
-        if ri * sin_theta > 1.0 || self.reflectance(cos_theta) > randon_f64() {
-            dir_ref = dir_unit.reflected_vec(&rec.normal);
+        let dir_ref = if ri * sin_theta > 1.0 || self.reflectance(cos_theta) > randon_f64() {
+            dir_unit.reflected_vec(&rec.normal)
         } else {
-            dir_ref = dir_unit.refract(&rec.normal, ri);
-        }
-
+            dir_unit.refract(&rec.normal, ri)
+        };
         *r_ref = Ray::new(rec.point, dir_ref);
         // a better name would be scattered
         true
