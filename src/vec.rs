@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, Index, IndexMut, Mul, Sub};
 
-use crate::utils::random_Interval_f64;
+use crate::utils::{random_Interval_f64, randon_f64};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum VecTypes {
@@ -132,6 +132,21 @@ impl Vec3 {
         // parallel comp
         let r_out_para = Self::mul(normal, (1.0 - r_out_perp.vec_length().powi(2)).abs().sqrt());
         r_out_perp + Self::mul(&r_out_para, -1.0)
+    }
+
+    // for defocus blur
+    pub fn random_in_unit_disk() -> Self {
+        loop {
+            let p = Vec3::new(
+                VecTypes::Coordinates,
+                random_Interval_f64(-1.0, 1.0),
+                random_Interval_f64(-1.0, 1.0),
+                0.0,
+            );
+            if p.vec_length() < 1.0 {
+                return p;
+            }
+        }
     }
 }
 

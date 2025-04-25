@@ -4,7 +4,7 @@ use rayon::prelude::*;
 use crate::{
     color::Color,
     ray::{HitRecord, Hittable, HittableList, Ray},
-    utils::{INF, sample_square},
+    utils::{self, INF, sample_square},
     vec::{Vec3, VecTypes},
 };
 
@@ -17,6 +17,11 @@ pub struct Camera {
     pub image_name: String,
     pub samples_per_pixel: u8,
 
+    pub vfov: f64,
+    pub lookfrom: Vec3, // point camera is looking from
+    pub lookat: Vec3,   // point camera is looking at
+    pub vup: Vec3,      // Camera-relative up direction
+
     image_hei: u32,
     center: Vec3,
     pixel00_loc: Vec3,
@@ -24,6 +29,11 @@ pub struct Camera {
     delta_y: Vec3,
     pixel_samples_scale: f64,
     max_deep_ray: u8,
+
+    // Camera frame relative basis
+    u: Vec3, // camera rigth
+    v: Vec3, // camera up
+    w: Vec3, // camera view direction
 }
 
 impl Camera {
@@ -98,22 +108,28 @@ impl Camera {
     fn inititalize(&mut self) {
         self.image_hei = (self.image_wid as f64 / self.aspect_ratio) as u32;
 
-        self.center = Vec3::default(); //0,0,0
-        let focal_len = 1.0;
-        let view_hei = 2.0;
+        self.center = self.lookfrom;
+        let focal_len = (self.lookfrom - self.lookat).vec_length();
+        // vfov calc
+        let theta = utils::degrees_to_radians(self.vfov);
+        let h = (theta / 2.0).tan(); // side size of view 
+
+        let view_hei = 2.0 * h * focal_len;
         let view_wid = view_hei * (self.image_wid as f64 / self.image_hei as f64);
 
-        let view_x = Vec3::new(VecTypes::Coordinates, view_wid, 0.0, 0.0);
-        let view_y = Vec3::new(VecTypes::Coordinates, 0.0, -view_hei, 0.0);
+        self.w = (self.lookfrom - self.lookat).unit_vec();
+        self.u = (self.vup * self.w).unit_vec();
+        self.v = self.w * self.u;
+
+        let view_x = self.u.mul(view_wid);
+        let view_y = self.v.mul(-1.0).mul(view_hei);
 
         // delta's, size of each pixel
         self.delta_x = view_x.div(self.image_wid as f64);
         self.delta_y = view_y.div(self.image_hei as f64);
 
-        let view_upper_left = self.center
-            - Vec3::new(VecTypes::Coordinates, 0.0, 0.0, focal_len)
-            - view_x.div(2.0)
-            - view_y.div(2.0);
+        let view_upper_left =
+            self.center - self.w.mul(focal_len) - view_x.div(2.0) - view_y.div(2.0);
 
         self.pixel00_loc = view_upper_left + (self.delta_y + self.delta_x).mul(0.5);
     }
@@ -126,6 +142,12 @@ impl Camera {
         f.samples_per_pixel = 7;
         f.pixel_samples_scale = 1.0 / f.samples_per_pixel as f64;
         f.max_deep_ray = 10;
+        f.vfov = 90.0;
+
+        f.lookfrom = Vec3::new(VecTypes::Coordinates, 0.0, 0.0, 0.0);
+        f.lookat = Vec3::new(VecTypes::Coordinates, 0.0, 0.0, -1.0);
+        f.vup = Vec3::new(VecTypes::Coordinates, 0.0, 1.0, 0.0);
+
         f
     }
 }

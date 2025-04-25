@@ -5,6 +5,8 @@ mod ray;
 mod utils;
 mod vec;
 
+use std::f32::consts::PI;
+
 use color::Color;
 use material::{Dieletric, Lambertian, Material, Metal};
 use ray::{HittableList, Sphere};
@@ -13,19 +15,55 @@ use vec::*;
 fn main() {
     // Objects
     let mut world = HittableList::new();
+    // let m_ground = Lambertian::new(Color::new(0.0, 0.8, 0.4));
+    // let m_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
+    // let m_left = Dieletric::new(1.5);
+    // let m_bubble = Dieletric::new(1.0 / 1.5);
+    // let m_rigth = Metal::new(Color::new(0.5, 0.6, 0.2), 1.0);
+    //
+    // let g = Sphere::new(
+    //     Vec3::new(VecTypes::Coordinates, 0.0, -100.5, -1.0),
+    //     100.0,
+    //     m_ground.clone_box(),
+    // );
+    //
+    // let c = Sphere::new(
+    //     Vec3::new(VecTypes::Coordinates, 0.0, 0.0, -1.2),
+    //     0.5,
+    //     m_center.clone_box(),
+    // );
+    // let l = Sphere::new(
+    //     Vec3::new(VecTypes::Coordinates, -1.0, 0.0, -1.0),
+    //     0.5,
+    //     m_left.clone_box(),
+    // );
+    // let l_inside = Sphere::new(
+    //     Vec3::new(VecTypes::Coordinates, -1.0, 0.0, -1.0),
+    //     0.4,
+    //     m_bubble.clone_box(),
+    // );
+    // let r = Sphere::new(
+    //     Vec3::new(VecTypes::Coordinates, 1.0, 0.0, -1.0),
+    //     0.5,
+    //     m_rigth.clone_box(),
+    // );
+    // world.add(g.boxed());
+    // world.add(c.boxed());
+    // world.add(l.boxed());
+    // world.add(r.boxed());
+    // world.add(l_inside.boxed());
 
-    let m_ground = Lambertian::new(Color::new(0.0, 0.8, 0.4));
+    let m_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
     let m_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
-    let m_left = Dieletric::new(1.5);
+    let m_l = Dieletric::new(1.5);
     let m_bubble = Dieletric::new(1.0 / 1.5);
-    let m_rigth = Metal::new(Color::new(0.5, 0.6, 0.2), 1.0);
+    let m_r = Metal::new(Color::new(0.0, 0.6, 0.2), 1.0);
 
     let g = Sphere::new(
         Vec3::new(VecTypes::Coordinates, 0.0, -100.5, -1.0),
         100.0,
         m_ground.clone_box(),
     );
-
     let c = Sphere::new(
         Vec3::new(VecTypes::Coordinates, 0.0, 0.0, -1.2),
         0.5,
@@ -34,25 +72,30 @@ fn main() {
     let l = Sphere::new(
         Vec3::new(VecTypes::Coordinates, -1.0, 0.0, -1.0),
         0.5,
-        m_left.clone_box(),
+        m_l.clone_box(),
     );
-    let l_inside = Sphere::new(
-        Vec3::new(VecTypes::Coordinates, -1.0, 0.0, -1.0),
+    let b = Sphere::new(
+        Vec3::new(VecTypes::Coordinates, 1.0, 0.0, -1.0),
         0.4,
         m_bubble.clone_box(),
     );
     let r = Sphere::new(
         Vec3::new(VecTypes::Coordinates, 1.0, 0.0, -1.0),
         0.5,
-        m_rigth.clone_box(),
+        m_r.clone_box(),
     );
+
     world.add(g.boxed());
     world.add(c.boxed());
     world.add(l.boxed());
+    world.add(b.boxed());
     world.add(r.boxed());
-    world.add(l_inside.boxed());
 
     let asp: f64 = 16.0 / 9.0;
-    let mut c = camera::Camera::new(asp, 800, "image.png");
+    let mut c = camera::Camera::new(asp, 1280, "image.png");
+    c.lookfrom = Vec3::new(VecTypes::Coordinates, -2.0, 2.0, 1.0);
+    c.lookat = Vec3::new(VecTypes::Coordinates, 0.0, 0.0, -1.0);
+    c.vup = Vec3::new(VecTypes::Coordinates, 0.0, 1.0, 0.0);
+    c.vfov = 60.0;
     let _ = c.render(&world);
 }
