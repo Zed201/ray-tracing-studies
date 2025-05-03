@@ -7,7 +7,7 @@ use std::{
 use image::Rgb;
 
 use crate::{
-    utils::Interval,
+    utils::{Interval, randon_f64},
     vec::{self, Vec3},
 };
 
@@ -25,6 +25,10 @@ impl Color {
 
     pub fn mul(&self, m: f64) -> Self {
         Color::new(self.rgb[0] * m, self.rgb[1] * m, self.rgb[2] * m)
+    }
+
+    pub fn random() -> Self {
+        Color::new(randon_f64(), randon_f64(), randon_f64())
     }
 }
 

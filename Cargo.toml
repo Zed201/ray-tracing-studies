@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-image = { version = "0.25.6", features = ["rayon"] }
+image = { version = "0.25.6", features = ["gif", "png", "rayon"], default-features = false }
 rand = "0.9.1"
 rayon = "1.10.0"

@@ -14,7 +14,6 @@ use crate::{
 pub struct Camera {
     pub aspect_ratio: f64,
     pub image_wid: u32,
-    pub image_name: String,
     pub samples_per_pixel: u8,
 
     pub vfov: f64,
@@ -80,7 +79,7 @@ impl Camera {
         Ray::new(self.center, ray_dir)
     }
 
-    pub fn render(&mut self, world: &HittableList) -> Result<(), image::ImageError> {
+    pub fn render(&mut self, world: &HittableList) -> RgbImage {
         self.inititalize();
         let mut buffer: RgbImage = ImageBuffer::new(self.image_wid, self.image_hei);
         let antialiasing = true;
@@ -102,7 +101,7 @@ impl Camera {
             *pixel = Rgb::from(c.mul(self.pixel_samples_scale));
         });
 
-        buffer.save(self.image_name.as_str())
+        buffer
     }
 
     fn inititalize(&mut self) {
@@ -134,14 +133,13 @@ impl Camera {
         self.pixel00_loc = view_upper_left + (self.delta_y + self.delta_x).mul(0.5);
     }
 
-    pub fn new(aspect: f64, img_wid: u32, img_name: &str) -> Self {
+    pub fn new(aspect: f64, img_wid: u32) -> Self {
         let mut f = Camera::default();
         f.aspect_ratio = aspect;
         f.image_wid = img_wid;
-        f.image_name = String::from(img_name);
         f.samples_per_pixel = 7;
         f.pixel_samples_scale = 1.0 / f.samples_per_pixel as f64;
-        f.max_deep_ray = 10;
+        f.max_deep_ray = 15;
         f.vfov = 90.0;
 
         f.lookfrom = Vec3::new(VecTypes::Coordinates, 0.0, 0.0, 0.0);

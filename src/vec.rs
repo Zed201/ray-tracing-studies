@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, Index, IndexMut, Mul, Sub};
 
-use crate::utils::{random_Interval_f64, randon_f64};
+use crate::utils::random_Interval_f64;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum VecTypes {
